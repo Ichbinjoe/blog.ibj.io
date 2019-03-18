@@ -362,8 +362,8 @@ perform in order to find the complete 256 bit key.
 ```
 2 ^ 128 + (1 / 256) * 2 ^ 128 * 2 ^ 128 =
                       2 ^ 128 + 2 ^ 248 =
-                                        = 4.523128485832664e+74 hashes
-                                        = 4.523128485832664e+74e+65 billion hashes
+    = 4.523128485832664e+74 hashes
+    = 4.523128485832664e+74e+65 billion hashes
 ```
 
 SIPHash has been evaluated to be a cryptographically strong PRF, meaning that
@@ -381,9 +381,8 @@ will need to crack the syncookie key.
 ```
 2 ^ 128 / 2 + (((1 / 256) * 2 ^ 128 / 2) - 1) * 2 ^ 128 + 2 ^ 128 / 2 =
                                     2 ^ 128 + (2 ^ 119 - 1) * 2 ^ 128 =
-                                                                      = 2.261564242916332e+74 hashes
-                                                                      = 2.261564242916332e+65 billion hashes
-
+    = 2.261564242916332e+74 hashes
+    = 2.261564242916332e+65 billion hashes
 ```
 
 This isn't exactly half of full key space we found above, but it is very close.
@@ -393,8 +392,9 @@ the key. Given the amount of hashes as well as our hash rate, its simple math to
 figure how long it would take:
 
 ```
-0.097621 / (16384 * 524288) * 2 ^ 128 + (2 ^ 119 - 1) * 2 ^ 128 = 2.5701728062440553e+63 seconds
-                                                                = 8.149964504832748e+55 years
+0.097621 / (16384 * 524288) * 2 ^ 128 + (2 ^ 119 - 1) * 2 ^ 128 
+    = 2.5701728062440553e+63 seconds
+    = 8.149964504832748e+55 years
 ```
 
 Whats more is that in order to be leveraged, this attack has to be done in _real
