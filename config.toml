@@ -4,7 +4,6 @@ defaultContentLanguage = "en"
 title = "blog.ibj.io"
 theme = "cupper-hugo-theme"
 googleAnalytics = "UA-113698885-2"
-#disqusShortname = "yourdiscussshortname"
 
 [taxonomies]
   tag = "tags"
@@ -16,26 +15,18 @@ googleAnalytics = "UA-113698885-2"
   quality = 99
 
 [params]
-  description = "This is where I hope to write stuff that I find interesting"
+  description = "<p>Joe Hirschfeld / <a href='https://ibj.io'>ibj.io</a></p><p>This is where I hope to write stuff that I find interesting</p>"
   homeMetaContent = "Blog for technology / computer related ramblings"
-  footer = "Joe Hirschfeld © 2019"
+  footer = "Joe Hirschfeld / <a href='https://ibj.io'>ibj.io</a> © 2019"
   # For more date formats see https://gohugo.io/functions/format/
   dateFormat = "January 2, 2006"
   #codePenUser = "someUser"
 
 [menu]
   [[menu.nav]]
-    name = "Home"
-    url = "/"
-    weight = 1
-  [[menu.nav]]
-    name = "Blog"
+    name = "Posts"
     url = "/post/"
     weight = 2
-  [[menu.nav]]
-    name = "Tags"
-    url = "/tags/"
-    weight = 3
   [[menu.nav]]
     name = "About"
     url = "https://ibj.io"
