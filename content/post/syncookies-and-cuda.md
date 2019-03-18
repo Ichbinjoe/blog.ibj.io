@@ -56,7 +56,7 @@ TCP connection is being opened, the server maintains simple state of the
 half-opened connection. This state takes up memory space in the kernel. If an
 attacker wanted to cause a denial of service on the server, it was possible to
 forge a lot of these 'half open' connections, using no resources on the client
-while a bundle of resources on the server. This in-balance of resources is the
+while a bundle of resources on the server. This imbalance of resources is the
 basis of the SYN flood attack.
 
 To mitigate this attack, operating systems implemented syncookies, a
