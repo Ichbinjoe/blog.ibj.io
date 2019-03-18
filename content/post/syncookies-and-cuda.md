@@ -78,7 +78,7 @@ reasons:
   data on a TCP connection creation
 
 To achieve this, I tried to calculate how difficult it would be to predict and
-mint Syncookies with arbitrary source and destination ip/port combinations for a
+mint syncookies with arbitrary source and destination ip/port combinations for a
 single running Linux server instance.
 
 ## Linux and Syncookies
@@ -339,14 +339,14 @@ So almost 90GH/s. Before jumping the gun, remember that we effectively need to
 do two of these hashes per syncookie. However we can improve our odds a bit - we
 can rule out 255/256 combinations of the first key by only performing one hash
 (instead of then needing to perform the second hash) since we know from the code
-above that we will be able to check that the upper 8 bits of the Syncookie will
+above that we will be able to check that the upper 8 bits of the syncookie will
 be the lower 8 bits of the `count` variable. We assume that we can somehow
 derive the current uptime of the server through some other technique. Thus, we
 will be able to immediately rule out the key combination for 255/256 of all keys
 by doing simply one hash.
 
 Knowing this, we can determine how long it will take on average to guess a
-complete Syncookie key. First, lets determine just how many hashes we need.
+complete syncookie key. First, lets determine just how many hashes we need.
 Trivially we would need `2 * 2 ^ 256` or `2 ^ 257` hashes, however as we noted
 above we can be more intelligent about this. Our optimized algorithm will almost
 halve the hashes we require:
@@ -411,7 +411,7 @@ cause (which it is). However, to make matters worse, I only calculated the time
 it would take to search the entire key space for collisions with one syncookie
 sample. Unfortunately, this will not give us the true answer.
 
-The problem is that we are only able to observe the output to the Syncookie hash
+The problem is that we are only able to observe the output to the syncookie hash
 32 bits per computation. Surprisingly, this presents another challenge being
 that our output entropy (the syncookie generated) is too low in relation to our
 input entropy (the key). What this results in is that for a sample size of 1
