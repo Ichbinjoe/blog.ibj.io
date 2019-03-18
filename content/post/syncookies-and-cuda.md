@@ -20,7 +20,7 @@ based protocol - TCP will abstract away the bookkeeping required to move
 multiple variably sized blocks of data across a network.
 
 When a 'client' wishes to open a connection to a 'server' of a service, there is
-a specific handshake (defined by RFC793) which occurs:
+a specific handshake (defined by RFC793, page 31) which occurs:
 
 ```
       TCP A                                                TCP B
@@ -53,11 +53,11 @@ sending data to the other - the stream has been fully opened!
 
 Historically (and by historically, we are talking 80-90's historically), when a
 TCP connection is being opened, the server maintains simple state of the
-half-opened connection. This state takes up room in the kernel. If an attacker
-wanted to cause a denial of service on the server, it was possible to forge a
-lot of these 'half open' connections, using no resources on the client while a
-bundle of resources on the server. This in-balance of resources is the basis of
-the SYN flood attack.
+half-opened connection. This state takes up memory space in the kernel. If an
+attacker wanted to cause a denial of service on the server, it was possible to
+forge a lot of these 'half open' connections, using no resources on the client
+while a bundle of resources on the server. This in-balance of resources is the
+basis of the SYN flood attack.
 
 To mitigate this attack, operating systems implemented syncookies, a
 'magic' sequence number backed by cryptography. With syncookies, the resources
@@ -73,10 +73,9 @@ reasons:
 
 + Attackers will now have a 'fire and forgettable' way of opening connections on
   a target server, recreating the resource imbalance from before
-+ Attackers don't need to use their real IP when sending this TCP ACK packet,
-  meaning attacks get incredibly more non-trivial to find the source of attacks
++ Attackers don't need to use their real IP when sending this TCP ACK packet
 + Opens up reflection DoS attacks for certain services which preemptively send
-  data on a TCP connection creation.
+  data on a TCP connection creation
 
 To achieve this, I tried to calculate how difficult it would be to predict and
 mint Syncookies with arbitrary source and destination ip/port combinations for a
@@ -159,11 +158,12 @@ lots of brute force.
 
 Really, Linux stores only 2 pieces of data within the syncookie which can be
 later reversed - the lower 8 bits of the source-sequence number as well as the
-'data' value, which on further analysis is an index into the `mss` size array.
+`data` value, which on further analysis is an index into the `mss` size array.
 
-This doesn't help us much because we pretty much already know both of these
-things - the source sequence is something that we provide, and for various
-mediums the MSS is very well known or can be guessed fairly reliably.
+We really don't care much about these two pieces of data because we pretty much
+already know both of these things - the source sequence number is something that
+we provide, and for various mediums the MSS is very well known or can be guessed
+fairly reliably.
 
 An important thing to note is the `syncookie_secret`. It is a 2-element array of
 128 bit keys for SIPHash. This makes our effective key length 256 bits.
@@ -347,9 +347,9 @@ by doing simply one hash.
 
 Knowing this, we can determine how long it will take on average to guess a
 complete Syncookie key. First, lets determine just how many hashes we need.
-Trivially we would need `2 * 2 ^ 256` or `2 ^ 257`, however as we noted above,
-we can be more intelligent about this. Lets derive our strategy as the
-following:
+Trivially we would need `2 * 2 ^ 256` or `2 ^ 257` hashes, however as we noted
+above we can be more intelligent about this. Our optimized algorithm will almost
+halve the hashes we require:
 
 + Find a first-half key K1 where the resulting hash on the syncookie's upper 8
   bits is equivalent to `count`'s lower 8 bits.
@@ -398,11 +398,11 @@ figure how long it would take:
 ```
 
 Whats more is that in order to be leveraged, this attack has to be done in _real
-time_ since every time a server restarts, its key is regenerated. Its worth
-noting that this is for my GTX 970, but due to the sheer scale of this number
-and the very low value guessing a syncookie key would be, this attack is
-probably a poor choice for a state actor to undertake (as they would be the only
-attack actors capable of pulling off such an attack in real time).
+time_ since every time a server restarts its key is regenerated. Its worth
+noting that this is for my GTX 970. Due to the sheer scale of this number
+and the very low relative value for cost in guessing a syncookie key, this
+attack would be a poor choice for even a state actor to undertake for whatever
+end goal they would have.
 
 ## Problem with sample sizes
 
@@ -411,13 +411,13 @@ cause (which it is). However, to make matters worse, I only calculated the time
 it would take to search the entire key space for collisions with one syncookie
 sample. Unfortunately, this will not give us the true answer.
 
-You see, the problem is that we are only able to observe the output to the
-Syncookie hash 32 bits per computation. Surprisingly, this presents another
-challenge being that our output entropy (the syncookie generated) is too low in
-relation to our input entropy (the key). What this results in is that for a
-sample size of 1 (our one syncookie), and knowing that SIPHash is a PRF, we have
-`2 ^ 256 / 2 ^ 32` or `2 ^ 224` keys which given the same inputs will generate
-the same output syncookie.
+The problem is that we are only able to observe the output to the Syncookie hash
+32 bits per computation. Surprisingly, this presents another challenge being
+that our output entropy (the syncookie generated) is too low in relation to our
+input entropy (the key). What this results in is that for a sample size of 1
+(our one syncookie), and knowing that SIPHash is a PRF, we have `2 ^ 256 / 2 ^
+32` or `2 ^ 224` keys which given the same inputs will generate the same output
+syncookie.
 
 The answer to this problem is to then check candidate keys against more
 generated syncookies to further narrow down syncookie key. I don't know about
@@ -428,14 +428,12 @@ another problem which throws a wrench in trying to determine the secret key.
 ## Reflection
 
 This was a bad idea. There is no way without being the NSA with a massive GPU
-cluster available that this attack is halfway feasible. I guess the only real
-upshot is that SIPHash looks like it can be not only shoved into a GPU but also
-inserted into hardware (if you are curious, [here is a VHDL
-implementation](https://github.com/pemb/siphash)). I'm personally not convinced
-that such a hardware implementation would help in any way that really matters
-(so you can do it before the Earth dies, thats pretty cool!) but someone more
-experienced with hardware can say that before me. Really, there are so many
-better ways to achieve the benefits of cracking Linux's syncookie key than
-actually going and cracking the key - assuming SIPHash stands to scrutiny,
-Linux's implementation of syncookies looks incredibly secure.
+cluster available that this attack is halfway feasible. Hardware / ASIC
+acceleration may be a possibility which brings this attack a bit more in reach
+(if you are curious, have a [VHDL
+implementation](https://github.com/pemb/siphash) I found) but hardware
+acceleration is notoriously expensive. Really, there are so many better ways to
+achieve the benefits of cracking Linux's syncookie key than actually going and
+cracking the key. Assuming SIPHash stands to scrutiny, Linux's implementation
+of syncookies looks incredibly secure.
 
