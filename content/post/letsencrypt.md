@@ -166,7 +166,6 @@ server {
                 proxy_pass http://localhost:3000;
         }
 }
-
 ```
 
 This nginx config pushes users to https, while leaves the ACME location of http
@@ -178,6 +177,31 @@ This includes the STS header as well as SSL stapling.
 Now at first, you will either need to load in the snakeoil certificates or
 comment out the 443/444 server block because the certificates don't exist. Once
 you run LE for the first time you can go back in and uncomment that block.
+
+Now this requires an additional modified DHParams file at
+`/etc/ssl/ffdhe4096.pem`:
+
+```
+-----BEGIN DH PARAMETERS-----
+MIICCAKCAgEA//////////+t+FRYortKmq/cViAnPTzx2LnFg84tNpWp4TZBFGQz
++8yTnc4kmz75fS/jY2MMddj2gbICrsRhetPfHtXV/WVhJDP1H18GbtCFY2VVPe0a
+87VXE15/V8k1mE8McODmi3fipona8+/och3xWKE2rec1MKzKT0g6eXq8CrGCsyT7
+YdEIqUuyyOP7uWrat2DX9GgdT0Kj3jlN9K5W7edjcrsZCwenyO4KbXCeAvzhzffi
+7MA0BM0oNC9hkXL+nOmFg/+OTxIy7vKBg8P+OxtMb61zO7X8vC7CIAXFjvGDfRaD
+ssbzSibBsu/6iGtCOGEfz9zeNVs7ZRkDW7w09N75nAI4YbRvydbmyQd62R0mkff3
+7lmMsPrBhtkcrv4TCYUTknC0EwyTvEN5RPT9RFLi103TZPLiHnH1S/9croKrnJ32
+nuhtK8UiNjoNq8Uhl5sN6todv5pC1cRITgq80Gv6U93vPBsg7j/VnXwl5B0rZp4e
+8W5vUsMWTfT7eTDp5OWIV7asfV9C1p9tGHdjzx1VA0AEh/VbpX4xzHpxNciG77Qx
+iu1qHgEtnmgyqQdgCpGBMMRtx3j5ca0AOAkpmaMzy4t6Gh25PXFAADwqTs6p+Y0K
+zAqCkc3OyX3Pjsm1Wn+IpGtNtahR9EGC4caKAH5eZV9q//////////8CAQI=
+-----END DH PARAMETERS-----
+```
+
+This 4096 bit DHE groups are recommended by
+[RFC7919](https://tools.ietf.org/html/rfc7919) as well as
+[Mozilla](https://wiki.mozilla.org/Security/Server_Side_TLS#ffdhe4096).
+
+
 
 Now on to HAProxy. I clipped out the global and defaults sections. This file is
 located at `/etc/haproxy/haproxy.cfg` on my Ubuntu install.
@@ -224,6 +248,7 @@ backend grafana-tls
 
         server grafana grafana.ibj.io:444 send-proxy-v2
 ```
+
 
 To mint certificates, I ran the following command:
 
